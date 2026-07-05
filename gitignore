@@ -1,0 +1,10 @@
+# Local env / OS junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Uploaded product images shouldn't live in git history
+# (Render's filesystem is ephemeral anyway — see README notes on storage)
+uploads/products/*
+!uploads/products/.gitkeep

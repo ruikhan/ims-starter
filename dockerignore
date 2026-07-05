@@ -1,0 +1,13 @@
+.git
+.gitignore
+.gitattributes
+README.md
+*.md
+.vscode
+.idea
+node_modules
+
+# Don't ship locally-accumulated uploads into the image;
+# the app writes into uploads/products/ at runtime instead.
+uploads/products/*
+!uploads/products/.gitkeep

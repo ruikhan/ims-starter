@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: ims-starter
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      # App serves from the domain root on Render, not a /ims-starter subfolder
+      - key: BASE_URL
+        value: ""
+
+      # ── External MySQL (Render has no managed MySQL — use Aiven, PlanetScale, etc.) ──
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        value: ims_db
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+
+      # Path to the CA cert for TLS to your MySQL host.
+      # Upload the cert via Render's "Secret Files" tab and point this
+      # at wherever Render mounts it (commonly /etc/secrets/<filename>).
+      - key: DB_SSL_CA
+        value: /etc/secrets/ca.pem
+
+      # Leave unset/false in production — only enables verbose DB errors
+      - key: APP_DEBUG
+        value: "false"
