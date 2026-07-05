@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
         'path'     => '/',
         'httponly' => true,
         'samesite' => 'Lax',
-        // 'secure' => true, // uncomment once the site is served over HTTPS only
+        'secure'   => true,
     ]);
     session_start();
 }
