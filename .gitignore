@@ -8,3 +8,5 @@ Thumbs.db
 # (Render's filesystem is ephemeral anyway — see README notes on storage)
 uploads/products/*
 !uploads/products/.gitkeep
+
+ca.pem

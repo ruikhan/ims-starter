@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IMS — CG SHOP</title>
+  <title>IMS — InSys</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css"/>
   <style>
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-icon">
       <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="6" rx="1"/><rect x="2" y="12" width="10" height="9" rx="1"/><rect x="15" y="12" width="7" height="4" rx="1"/><rect x="15" y="19" width="7" height="2" rx="1"/></svg>
     </div>
-    <div class="login-title">CG SHOP</div>
+    <div class="login-title">InSys</div>
     <div class="login-sub">Inventory Management System</div>
   </div>
   <div class="login-card">
