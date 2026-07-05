@@ -1,8 +1,8 @@
   </div><!-- /content -->
 </main>
 
-<script src="/ims-starter/assets/js/app.js"></script>
-<script src="/ims-starter/assets/js/spotlight-effects.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/app.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/spotlight-effects.js"></script>
 <script>
 // ── SIDEBAR TOGGLE ──────────────────────────────────────────
 function toggleSidebar() {

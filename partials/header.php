@@ -9,7 +9,7 @@ $currentPage = preg_replace('#\.php$#', '', preg_replace('#.*/ims-starter/#', ''
 function navItem(string $page, string $icon, string $label, string $current, int $badge = 0): string {
     $active    = (strpos($current, $page) !== false) ? 'active' : '';
     $badgeHtml = $badge > 0 ? "<span class=\"nav-badge\">$badge</span>" : '';
-    return "<a href=\"/ims-starter/$page.php\" class=\"nav-item $active\" onclick=\"closeSidebar()\">$icon<span>$label</span>$badgeHtml</a>";
+    return "<a href=\"" . BASE_URL . "/$page.php\" class=\"nav-item $active\" onclick=\"closeSidebar()\">$icon<span>$label</span>$badgeHtml</a>";
 }
 
 function ico(string $name): string {
@@ -38,8 +38,8 @@ $initials = substr($initials, 0, 2) ?: 'US';
   <meta name="theme-color" content="#161b27"/>
   <title><?= e($pageTitle ?? 'IMS') ?> — IMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/ims-starter/assets/css/style.css"/>
-  <link rel="stylesheet" href="/ims-starter/assets/css/theme-spotlight-gold.css"/>
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css"/>
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/theme-spotlight-gold.css"/>
 </head>
 <body data-gx="admin">
 
@@ -79,7 +79,7 @@ $initials = substr($initials, 0, 2) ?: 'US';
   <div class="nav-section">
     <div class="nav-label">Shop</div>
     <?= navItem('admin/orders', ico('orders'), 'Customer Orders', $currentPage) ?>
-    <a href="/ims-starter/shop/index.php" class="nav-item" target="_blank" rel="noopener">
+    <a href="<?= BASE_URL ?>/shop/index.php" class="nav-item" target="_blank" rel="noopener">
       <?= ico('shop') ?><span>Storefront</span>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;opacity:.35"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </a>
@@ -99,7 +99,7 @@ $initials = substr($initials, 0, 2) ?: 'US';
         <div class="user-name"><?= e(currentUserName()) ?></div>
         <div class="user-role"><?= e($_SESSION['role'] ?? '') ?></div>
       </div>
-      <a href="/ims-starter/logout.php" class="logout-btn" title="Logout">
+      <a href="<?= BASE_URL ?>/logout.php" class="logout-btn" title="Logout">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
