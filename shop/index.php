@@ -32,21 +32,21 @@ $shopName = 'CGShop';
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title><?= $shopName ?> — Premium Inventory Store</title>
-  <link rel="stylesheet" href="/ims-starter/assets/css/shop.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/shop.css"/>
 </head>
 <body>
 
 <!-- ── NAV ── -->
 <nav class="shop-nav">
-  <a href="/ims-starter/shop/index.php" class="nav-brand">
+  <a href="<?= BASE_URL ?>/shop/index.php" class="nav-brand">
     <div class="nav-brand-icon">
       <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     </div>
     <?= $shopName ?>
   </a>
   <div class="nav-links">
-    <a href="/ims-starter/shop/index.php" class="active">Home</a>
-    <a href="/ims-starter/shop/catalog.php">Shop</a>
+    <a href="<?= BASE_URL ?>/shop/index.php" class="active">Home</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php">Shop</a>
     <a href="#features">About</a>
   </div>
   <!-- <div class="nav-actions">
@@ -55,7 +55,7 @@ $shopName = 'CGShop';
       Cart
       <span class="cart-count" id="cart-count">0</span>
     </button>
-    <a href="/ims-starter/login.php" class="btn btn-outline btn-sm">Admin</a>
+    <a href="<?= BASE_URL ?>/login.php" class="btn btn-outline btn-sm">Admin</a>
   </div> -->
 </nav>
 
@@ -68,7 +68,7 @@ $shopName = 'CGShop';
     <h1>Quality products,<br/><span>delivered fast</span></h1>
     <p>Browse our curated inventory of premium products. Everything in stock, ready to ship directly to your door.</p>
     <div class="hero-actions">
-      <a href="/ims-starter/shop/catalog.php" class="btn btn-primary btn-lg">
+      <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-primary btn-lg">
         <svg class="ico" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Shop now
       </a>
@@ -99,7 +99,7 @@ $shopName = 'CGShop';
       <div class="section-label">Browse by</div>
       <div class="section-title">Categories</div>
     </div>
-    <a href="/ims-starter/shop/catalog.php" class="btn btn-ghost btn-sm">View all →</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-ghost btn-sm">View all →</a>
   </div>
   <div class="cat-grid">
     <?php
@@ -112,7 +112,7 @@ $shopName = 'CGShop';
     foreach ($categories as $cat):
       $icon = $catIcons[$cat['name']] ?? $catIcons['default'];
     ?>
-    <a href="/ims-starter/shop/catalog.php?cat=<?= $cat['id'] ?>" class="cat-card">
+    <a href="<?= BASE_URL ?>/shop/catalog.php?cat=<?= $cat['id'] ?>" class="cat-card">
       <div class="cat-icon">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><?= $icon ?></svg>
       </div>
@@ -132,13 +132,13 @@ $shopName = 'CGShop';
       <div class="section-title">Featured products</div>
       <div class="section-sub">All products are in stock and ready to ship</div>
     </div>
-    <a href="/ims-starter/shop/catalog.php" class="btn btn-outline btn-sm">Browse all →</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-outline btn-sm">Browse all →</a>
   </div>
   <div class="products-grid">
     <?php foreach ($featured as $p): ?>
     <?php
       $isNew = strtotime($p['created_at']) > strtotime('-30 days');
-      $imgSrc = $p['image'] ? '/ims-starter/uploads/products/' . e($p['image']) : null;
+      $imgSrc = $p['image'] ? BASE_URL . '/uploads/products/' . e($p['image']) : null;
     ?>
     <div class="product-card">
       <div class="product-img">
@@ -213,9 +213,9 @@ $shopName = 'CGShop';
     <div class="footer-text">Powered by IMS · All rights reserved <?= date('Y') ?></div>
   </div>
   <div style="display:flex;gap:16px">
-    <a href="/ims-starter/shop/catalog.php" style="font-size:13px;color:var(--text3)">Shop</a>
-    <a href="/ims-starter/shop/checkout.php" style="font-size:13px;color:var(--text3)">Checkout</a>
-    <a href="/ims-starter/login.php" style="font-size:13px;color:var(--text3)">Admin</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php" style="font-size:13px;color:var(--text3)">Shop</a>
+    <a href="<?= BASE_URL ?>/shop/checkout.php" style="font-size:13px;color:var(--text3)">Checkout</a>
+    <a href="<?= BASE_URL ?>/login.php" style="font-size:13px;color:var(--text3)">Admin</a>
   </div>
 </footer>
 
@@ -225,6 +225,6 @@ $shopName = 'CGShop';
 <!-- ── TOAST ── -->
 <div id="shop-toast"></div>
 
-<script src="/ims-starter/assets/js/shop.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/shop.js"></script>
 </body>
 </html>

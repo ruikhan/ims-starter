@@ -25,11 +25,11 @@ $shopName = 'CGShop';
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Order Confirmed — <?= $shopName ?></title>
-  <link rel="stylesheet" href="/ims-starter/assets/css/shop.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/shop.css"/>
 </head>
 <body>
 <nav class="shop-nav">
-  <a href="/ims-starter/shop/index.php" class="nav-brand">
+  <a href="<?= BASE_URL ?>/shop/index.php" class="nav-brand">
     <div class="nav-brand-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     </div>
@@ -71,15 +71,15 @@ $shopName = 'CGShop';
     </div>
 
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="/ims-starter/shop/catalog.php" class="btn btn-primary">Continue shopping</a>
-      <a href="/ims-starter/shop/index.php" class="btn btn-outline">Back to home</a>
+      <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-primary">Continue shopping</a>
+      <a href="<?= BASE_URL ?>/shop/index.php" class="btn btn-outline">Back to home</a>
     </div>
   </div>
   <?php else: ?>
   <div class="success-card">
     <h2 style="font-family:var(--font-head)">Order not found</h2>
     <p style="color:var(--text2);margin:12px 0 24px">The order code is invalid or expired.</p>
-    <a href="/ims-starter/shop/index.php" class="btn btn-primary">Go to shop</a>
+    <a href="<?= BASE_URL ?>/shop/index.php" class="btn btn-primary">Go to shop</a>
   </div>
   <?php endif; ?>
 </div>

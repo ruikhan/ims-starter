@@ -4,7 +4,7 @@ requireLogin();
 $flash       = getFlash();
 $lowCount    = getLowStockCount($pdo);
 $scriptPath  = str_replace('\\', '/', $_SERVER['PHP_SELF']);
-$currentPage = preg_replace('#\.php$#', '', preg_replace('#.*/ims-starter/#', '', $scriptPath));
+$currentPage = preg_replace('#\.php$#', '', preg_replace('#.*' . preg_quote(BASE_URL, '#') . '/#', '', $scriptPath));
 
 function navItem(string $page, string $icon, string $label, string $current, int $badge = 0): string {
     $active    = (strpos($current, $page) !== false) ? 'active' : '';
@@ -117,7 +117,7 @@ $initials = substr($initials, 0, 2) ?: 'US';
     <span class="page-title"><?= e($pageTitle ?? 'Dashboard') ?></span>
     <div class="topbar-right">
       <?php if ($lowCount > 0): ?>
-      <a href="/ims-starter/stock/history.php" class="icon-btn" title="<?= $lowCount ?> stock alerts">
+      <a href="<?= BASE_URL ?>/stock/history.php" class="icon-btn" title="<?= $lowCount ?> stock alerts">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
         </svg>

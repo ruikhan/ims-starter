@@ -10,18 +10,18 @@ $shopName = 'CGShop';
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Checkout — <?= $shopName ?></title>
-  <link rel="stylesheet" href="/ims-starter/assets/css/shop.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/shop.css"/>
 </head>
 <body>
 <nav class="shop-nav">
-  <a href="/ims-starter/shop/index.php" class="nav-brand">
+  <a href="<?= BASE_URL ?>/shop/index.php" class="nav-brand">
     <div class="nav-brand-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     </div>
     <?= $shopName ?>
   </a>
   <div class="nav-actions">
-    <a href="/ims-starter/shop/catalog.php" class="btn btn-ghost btn-sm">← Continue shopping</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-ghost btn-sm">← Continue shopping</a>
   </div>
 </nav>
 
@@ -34,7 +34,7 @@ $shopName = 'CGShop';
   <div id="empty-cart-msg" style="display:none;text-align:center;padding:80px 20px;color:var(--text3)">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin:0 auto 16px;display:block;opacity:.3"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <p style="font-size:16px;margin-bottom:16px">Your cart is empty</p>
-    <a href="/ims-starter/shop/catalog.php" class="btn btn-primary">Start shopping</a>
+    <a href="<?= BASE_URL ?>/shop/catalog.php" class="btn btn-primary">Start shopping</a>
   </div>
 
   <div class="checkout-grid" id="checkout-content">
@@ -96,7 +96,7 @@ $shopName = 'CGShop';
 </div>
 
 <div id="shop-toast"></div>
-<script src="/ims-starter/assets/js/shop.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/shop.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const cart = getCart();
@@ -144,14 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const res  = await fetch('/ims-starter/shop/place-order.php', {
+      const res  = await fetch('<?= BASE_URL ?>/shop/place-order.php', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
         clearCart();
-        window.location.href = '/ims-starter/shop/success.php?code=' + data.order_code;
+        window.location.href = '<?= BASE_URL ?>/shop/success.php?code=' + data.order_code;
       } else {
         showToast(data.error || 'Order failed. Please try again.', 'error');
         btn.disabled = false;

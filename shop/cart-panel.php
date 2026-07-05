@@ -19,7 +19,7 @@
       <span class="cart-total-label">Total</span>
       <span class="cart-total-val" id="cart-total">₱0.00</span>
     </div>
-    <a href="/ims-starter/shop/checkout.php" class="btn btn-primary" style="width:100%;justify-content:center" id="checkout-btn">
+    <a href="<?= BASE_URL ?>/shop/checkout.php" class="btn btn-primary" style="width:100%;justify-content:center" id="checkout-btn">
       Proceed to checkout →
     </a>
   </div>

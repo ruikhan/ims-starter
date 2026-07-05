@@ -57,6 +57,6 @@ $pdo->prepare("UPDATE products SET image = ? WHERE id = ?")->execute([$filename,
 echo json_encode([
     'success'   => true,
     'filename'  => $filename,
-    'image_url' => '/ims-starter/uploads/products/' . $filename,
+    'image_url' => BASE_URL . '/uploads/products/' . $filename,
     'msg'       => 'Image uploaded successfully.'
 ]);
