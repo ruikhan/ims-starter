@@ -24,7 +24,7 @@ $featured = $pdo->query("
     ORDER BY p.created_at DESC LIMIT 8
 ")->fetchAll();
 
-$shopName = 'CGShop';
+$shopName = 'InSys';
 ?>
 <!DOCTYPE html>
 <html lang="en">
