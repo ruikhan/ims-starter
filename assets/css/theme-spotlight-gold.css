@@ -1,0 +1,120 @@
+/* ============================================================
+   CGShop — Spotlight Reveal theme
+   Additive override. Load AFTER style.css / shop.css.
+   Redefines existing design tokens only — original stylesheets
+   are never modified. Safe to remove by deleting one <link> tag.
+   Supersedes theme-orange-gold.css — do not load both.
+   ============================================================ */
+
+:root {
+  /* Base surfaces — warm near-black instead of cool slate */
+  --bg:        #0b0806;
+  --surface:   #1b120a;
+  --surface2:  #241809;
+  --border:    #3a2716;
+  --border2:   #52371c;
+
+  /* Text */
+  --text:      #fbf2e4;
+  --text2:     #cbb491;
+  --text3:     #8a7256;
+
+  /* Brand accent */
+  --accent:          #f2b65b;
+  --accent-glow:     rgba(242,182,91,.16);
+  --accent-gradient: linear-gradient(120deg, #f2b65b 0%, #e2672e 100%);
+}
+
+/* ---- Brand marks & icon tiles ---- */
+.brand-icon, .login-icon, .nav-brand-icon,
+.cat-icon, .feature-icon, .stat-icon {
+  background: var(--accent-gradient) !important;
+}
+
+/* ---- Primary buttons: gold gradient + light sweep on hover ---- */
+.btn-primary {
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: #1a1006 !important;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute; top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.5), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.btn-primary:hover::after { animation: gx-sweep .8s ease forwards; }
+@keyframes gx-sweep { to { left: 130%; } }
+
+/* ---- Active sidebar nav ---- */
+.nav-item.active {
+  background: var(--accent-glow) !important;
+  border-left: 3px solid var(--accent);
+}
+
+/* ---- Cards catch a glint of light on hover ---- */
+.card, .stat-card, .product-card, .stock-form-card,
+.cat-card, .feature-card, .checkout-card {
+  position: relative;
+  overflow: hidden;
+}
+.card::before, .stat-card::before, .product-card::before,
+.stock-form-card::before, .cat-card::before, .feature-card::before,
+.checkout-card::before {
+  content: '';
+  position: absolute; top: -50%; left: -60%;
+  width: 35%; height: 220%;
+  background: linear-gradient(120deg, transparent, rgba(242,182,91,.10), transparent);
+  transform: rotate(20deg);
+  transition: left .7s ease;
+  pointer-events: none;
+}
+.card:hover::before, .stat-card:hover::before, .product-card:hover::before,
+.stock-form-card:hover::before, .cat-card:hover::before, .feature-card:hover::before,
+.checkout-card:hover::before {
+  left: 150%;
+}
+.product-card { transition: transform .3s ease, border-color .3s ease; }
+.product-card:hover { transform: translateY(-4px); }
+
+/* ---- Storefront hero ---- */
+.hero-bg  { background: var(--accent-gradient) !important; opacity: .16; }
+.hero-tag { background: var(--accent-glow) !important; color: var(--accent) !important; }
+
+/* ---- Ambient layer: spotlight cursor + drifting light-dust ----
+   Elements are injected by spotlight-effects.js — nothing to add
+   to your HTML markup. */
+#gx-dust {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+#gx-spotlight {
+  position: fixed; top: 40%; left: 50%;
+  width: 560px; height: 560px; border-radius: 50%;
+  pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, var(--accent-glow) 0%, rgba(226,103,46,.06) 35%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: left .15s linear, top .15s linear, opacity .3s ease;
+}
+/* Keep real content above the ambient layer */
+#main, .login-wrap, .shop-nav, .hero-content,
+.section, .cart-panel, .cart-overlay, .checkout-wrap, .success-wrap {
+  position: relative; z-index: 1;
+}
+
+/* Calmer variant for daily-use admin screens — set via <body data-gx="admin"> */
+body[data-gx="admin"] #gx-dust { display: none; }
+body[data-gx="admin"] #gx-spotlight { width: 380px; height: 380px; opacity: .6; }
+
+/* Respect reduced-motion preference site-wide */
+@media (prefers-reduced-motion: reduce) {
+  #gx-spotlight, #gx-dust { display: none !important; }
+  .btn-primary::after, .card::before, .stat-card::before,
+  .product-card::before, .stock-form-card::before,
+  .cat-card::before, .feature-card::before, .checkout-card::before {
+    display: none !important;
+  }
+}

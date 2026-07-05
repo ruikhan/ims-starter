@@ -1,0 +1,6 @@
+# IMS .htaccess — XAMPP compatible
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+</IfModule>
