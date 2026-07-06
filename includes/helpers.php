@@ -63,3 +63,21 @@ function redirectWith(string $url, string $type, string $msg): void {
 function getLowStockCount(PDO $pdo): int {
     return (int)$pdo->query("SELECT COUNT(*) FROM products WHERE status IN ('low_stock','out_of_stock')")->fetchColumn();
 }
+
+/**
+ * Get the interactive "feature hotspot" callouts for a product, in
+ * display order. Each row has label / description / pos_x / pos_y
+ * (percentages), used to place numbered markers over the product image
+ * on the storefront. Returns [] if the product has none yet (the
+ * storefront simply skips the hotspot layer in that case).
+ */
+function getProductFeatures(PDO $pdo, int $productId): array {
+    $stmt = $pdo->prepare("
+        SELECT id, label, description, pos_x, pos_y
+        FROM product_features
+        WHERE product_id = ?
+        ORDER BY sort_order ASC, id ASC
+    ");
+    $stmt->execute([$productId]);
+    return $stmt->fetchAll();
+}

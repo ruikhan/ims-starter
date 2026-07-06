@@ -342,3 +342,162 @@ textarea.form-control{resize:vertical;min-height:80px}
   .cart-item      { padding: 10px; gap: 10px; }
   .cart-item-img  { width: 46px; height: 46px; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PRODUCT FEATURE HOTSPOTS + QUICK VIEW
+   New layer, additive only — nothing above this line was changed.
+   Reuses the existing tokens (--accent, --surface, --font-head, …)
+   so it reads as part of the same system, not a bolted-on widget.
+══════════════════════════════════════════════════════════════ */
+
+/* A hotspot needs a positioned ancestor — .product-img and
+   .quickview-img-wrap already have position:relative above. */
+.hotspot-layer{position:absolute;inset:0;pointer-events:none;z-index:4}
+
+.hotspot-dot{
+  position:absolute;width:22px;height:22px;margin:0;border-radius:50%;
+  background:var(--accent);color:#08090d;
+  font-family:var(--font-mono);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transform:translate(-50%,-50%) scale(0);
+  cursor:pointer;pointer-events:all;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.hotspot-dot::before{
+  content:'';position:absolute;inset:-7px;border-radius:50%;
+  border:1.5px solid var(--accent);opacity:0;
+  animation:hotspot-ping 2.2s ease-out infinite;
+}
+@keyframes hotspot-ping{
+  0%   {opacity:.55;transform:scale(.65)}
+  75%  {opacity:0;   transform:scale(1.55)}
+  100% {opacity:0;   transform:scale(1.55)}
+}
+/* Reveal on card hover (desktop) or always-on inside Quick View */
+.product-card:hover .hotspot-dot,
+.quickview-img-wrap .hotspot-dot{
+  transform:translate(-50%,-50%) scale(1);
+}
+.hotspot-dot:nth-child(1){transition-delay:.02s}
+.hotspot-dot:nth-child(2){transition-delay:.07s}
+.hotspot-dot:nth-child(3){transition-delay:.12s}
+.hotspot-dot:nth-child(4){transition-delay:.17s}
+.hotspot-dot:nth-child(5){transition-delay:.22s}
+.hotspot-dot:nth-child(6){transition-delay:.27s}
+.hotspot-dot.active{background:#fff}
+.hotspot-dot.active::before{border-color:#fff}
+
+/* Small callout that appears near the dot on hover / tap */
+.hotspot-tip{
+  position:absolute;left:50%;bottom:calc(100% + 10px);transform:translate(-50%,4px);
+  min-width:150px;max-width:200px;
+  background:var(--surface);border:1px solid var(--border2);border-radius:10px;
+  padding:10px 12px;text-align:left;
+  font-family:var(--font-body);font-size:12px;line-height:1.5;color:var(--text2);
+  box-shadow:0 12px 28px rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease;
+  z-index:10;
+}
+.hotspot-tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--surface);
+}
+.hotspot-tip strong{display:block;color:var(--text);font-family:var(--font-head);font-size:13px;margin-bottom:2px}
+.hotspot-tip.show{opacity:1;transform:translate(-50%,0);pointer-events:all}
+
+/* Badge on the thumbnail hinting the product has hotspots, so people
+   know to hover/tap even before the dots are revealed */
+.hotspot-hint{
+  position:absolute;top:12px;right:12px;z-index:6;
+  display:flex;align-items:center;gap:5px;
+  background:rgba(8,9,13,.7);backdrop-filter:blur(6px);
+  border:1px solid var(--border2);border-radius:20px;
+  padding:4px 10px 4px 8px;font-family:var(--font-mono);font-size:10px;color:var(--text);
+  opacity:0;transform:translateY(-4px);
+  transition:opacity var(--trans),transform var(--trans);
+}
+.product-card:hover .hotspot-hint{opacity:1;transform:translateY(0)}
+.hotspot-hint svg{width:12px;height:12px;stroke:var(--accent)}
+
+/* Expand icon — click anywhere on the image (outside a dot) to open Quick View */
+.product-img{cursor:pointer}
+.quickview-expand{
+  position:absolute;bottom:12px;right:12px;z-index:6;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(8,9,13,.7);backdrop-filter:blur(6px);
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;color:var(--text);
+  opacity:0;transform:translateY(4px);
+  transition:opacity var(--trans),transform var(--trans),border-color var(--trans),color var(--trans);
+}
+.product-card:hover .quickview-expand{opacity:1;transform:translateY(0)}
+.quickview-expand:hover{border-color:var(--accent);color:var(--accent)}
+.quickview-expand svg{width:15px;height:15px}
+
+/* ── QUICK VIEW MODAL ── */
+.quickview-overlay{
+  position:fixed;inset:0;z-index:500;display:none;
+  align-items:center;justify-content:center;padding:24px;
+  background:rgba(4,5,8,.75);backdrop-filter:blur(8px);
+}
+.quickview-overlay.open{display:flex;animation:qv-fade .18s ease}
+@keyframes qv-fade{from{opacity:0}to{opacity:1}}
+.quickview-modal{
+  position:relative;background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r-lg);max-width:940px;width:100%;max-height:88vh;overflow:auto;
+  display:grid;grid-template-columns:1fr 1fr;
+  animation:qv-rise .25s cubic-bezier(.16,1,.3,1);
+}
+@keyframes qv-rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.quickview-img-wrap{position:relative;background:var(--surface3);min-height:320px}
+.quickview-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.quickview-close{
+  position:absolute;top:16px;right:16px;z-index:30;width:36px;height:36px;border-radius:50%;
+  background:rgba(4,5,8,.55);border:1px solid var(--border2);color:var(--text);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--trans);
+}
+.quickview-close:hover{border-color:var(--red);color:var(--red)}
+.quickview-close svg{width:16px;height:16px}
+.quickview-info{padding:36px}
+.quickview-info .product-cat{margin-bottom:8px}
+.quickview-name{font-family:var(--font-head);font-size:26px;font-weight:700;line-height:1.2;margin-bottom:12px}
+.quickview-desc{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:20px}
+.quickview-price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:24px}
+.quickview-price{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--accent)}
+.quickview-stock{font-size:12px;font-family:var(--font-mono);color:var(--text3)}
+.quickview-features-label{font-size:11px;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px}
+.quickview-feature-list{display:flex;flex-direction:column;gap:8px}
+.quickview-feature-item{
+  display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;
+  border:1px solid var(--border);background:transparent;cursor:pointer;
+  transition:border-color var(--trans),background var(--trans);
+}
+.quickview-feature-item:hover,.quickview-feature-item.active{border-color:var(--accent);background:rgba(34,211,160,.06)}
+.quickview-feature-num{
+  width:22px;height:22px;border-radius:50%;background:var(--accent);color:#08090d;
+  font-family:var(--font-mono);font-weight:700;font-size:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.quickview-feature-item.active .quickview-feature-num{background:#fff}
+.quickview-feature-name{font-size:13px;font-weight:600;color:var(--text)}
+.quickview-feature-desc{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
+
+@media (max-width: 768px) {
+  .quickview-modal{grid-template-columns:1fr;max-height:92vh}
+  .quickview-img-wrap{min-height:240px}
+  .quickview-info{padding:24px}
+
+  /* Touch devices don't have a reliable :hover, so the "N features" hint
+     and the Quick View expand icon must be visible up front rather than
+     appearing on hover — otherwise there's no way to discover them.
+     Dots themselves stay hidden on the small grid thumbnail (too cramped
+     to tap precisely); Quick View is the mobile entry point instead,
+     where dots are always shown at full size. */
+  .hotspot-hint,
+  .quickview-expand{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-dot::before{animation:none}
+  .quickview-overlay.open,.quickview-modal{animation:none}
+}

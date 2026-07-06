@@ -143,8 +143,145 @@ function showToast(msg, type = 'success') {
   setTimeout(() => el.remove(), 3200);
 }
 
-// ── INIT ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// PRODUCT FEATURE HOTSPOTS + QUICK VIEW
+// Additive only — nothing above this line was changed.
+//
+// Each .product-card carries a data-product attribute (JSON, written
+// by catalog.php / shop/index.php) with the product's info and its
+// `features` array ({label, description, pos_x, pos_y}). The grid
+// markup already renders a small hotspot layer over the thumbnail
+// for the hover preview; this script wires up the interaction and
+// builds the larger Quick View modal on demand.
+// ══════════════════════════════════════════════════════════════
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+function readProductData(card) {
+  try { return JSON.parse(card.dataset.product || '{}'); }
+  catch { return {}; }
+}
+
+function buildHotspotMarkup(features, idPrefix) {
+  return features.map((f, i) => `
+    <div class="hotspot-dot" data-idx="${i}" style="left:${f.pos_x}%;top:${f.pos_y}%">
+      ${i + 1}
+      <div class="hotspot-tip" id="${idPrefix}-tip-${i}">
+        <strong>${escapeHtml(f.label)}</strong>${escapeHtml(f.description || '')}
+      </div>
+    </div>`).join('');
+}
+
+// ── QUICK VIEW MODAL ──────────────────────────────────────────
+function openQuickView(card) {
+  const data     = readProductData(card);
+  const overlay  = document.getElementById('quickview-overlay');
+  if (!overlay) return;
+
+  const features = Array.isArray(data.features) ? data.features : [];
+
+  document.getElementById('qv-img').src = data.img || '';
+  document.getElementById('qv-img').alt = data.name || '';
+  document.getElementById('qv-cat').textContent  = data.category || 'General';
+  document.getElementById('qv-name').textContent = data.name || '';
+  document.getElementById('qv-desc').textContent = data.desc || 'Quality product from our catalogue.';
+  document.getElementById('qv-price').textContent = fmtMoney(data.price || 0);
+  document.getElementById('qv-stock').textContent = (data.stock ?? 0) + ' in stock';
+
+  const hotspotsEl = document.getElementById('qv-hotspots');
+  const listWrap   = document.getElementById('qv-features-wrap');
+  const listEl     = document.getElementById('qv-feature-list');
+
+  if (features.length) {
+    hotspotsEl.innerHTML = buildHotspotMarkup(features, 'qv');
+    listEl.innerHTML = features.map((f, i) => `
+      <div class="quickview-feature-item" data-idx="${i}">
+        <div class="quickview-feature-num">${i + 1}</div>
+        <div>
+          <div class="quickview-feature-name">${escapeHtml(f.label)}</div>
+          ${f.description ? `<div class="quickview-feature-desc">${escapeHtml(f.description)}</div>` : ''}
+        </div>
+      </div>`).join('');
+    listWrap.style.display = 'block';
+  } else {
+    hotspotsEl.innerHTML = '';
+    listWrap.style.display = 'none';
+  }
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuickView() {
+  const overlay = document.getElementById('quickview-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setActiveQvFeature(idx) {
+  document.querySelectorAll('.quickview-feature-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.idx === String(idx)));
+  document.querySelectorAll('#qv-hotspots .hotspot-dot').forEach(el =>
+    el.classList.toggle('active', el.dataset.idx === String(idx)));
+}
+
+// ── EVENT WIRING (delegated so it works for every product card,
+//    including ones rendered after a filter/search reload) ──────
 document.addEventListener('DOMContentLoaded', () => {
   renderCart();
   updateCartCount();
+
+  // Clicking a product image (but not a hotspot dot) opens Quick View
+  document.addEventListener('click', e => {
+    const dot = e.target.closest('.hotspot-dot');
+    const img = e.target.closest('.product-img');
+    const card = e.target.closest('.product-card');
+
+    if (dot) {
+      // Touch devices: tap toggles the tooltip instead of relying on hover
+      e.stopPropagation();
+      const tip = dot.querySelector('.hotspot-tip');
+      document.querySelectorAll('.hotspot-tip.show').forEach(t => { if (t !== tip) t.classList.remove('show'); });
+      tip?.classList.toggle('show');
+      return;
+    }
+    if (img && card && !card.closest('.quickview-modal')) {
+      openQuickView(card);
+      return;
+    }
+    if (e.target.id === 'quickview-overlay') closeQuickView();
+    if (e.target.closest('.quickview-close')) closeQuickView();
+
+    // Hovering/clicking a Quick View feature row highlights its dot
+    const qvItem = e.target.closest('.quickview-feature-item');
+    if (qvItem) setActiveQvFeature(qvItem.dataset.idx);
+  });
+
+  // Desktop hover: show the tooltip for whichever dot the mouse is over
+  document.addEventListener('mouseover', e => {
+    const dot = e.target.closest('.hotspot-dot');
+    if (dot) dot.querySelector('.hotspot-tip')?.classList.add('show');
+
+    const qvItem = e.target.closest('.quickview-feature-item');
+    if (qvItem) setActiveQvFeature(qvItem.dataset.idx);
+  });
+  document.addEventListener('mouseout', e => {
+    const dot = e.target.closest('.hotspot-dot');
+    if (dot && !dot.matches(':hover')) dot.querySelector('.hotspot-tip')?.classList.remove('show');
+
+    const qvItem = e.target.closest('.quickview-feature-item');
+    if (qvItem && !document.querySelector('.quickview-feature-item:hover')) {
+      document.querySelectorAll('.quickview-feature-item, #qv-hotspots .hotspot-dot').forEach(el => el.classList.remove('active'));
+    }
+  });
+
+  // Esc closes Quick View
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeQuickView();
+  });
 });

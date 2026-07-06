@@ -89,10 +89,29 @@ $shopName = 'CGShop';
   <?php else: ?>
   <div class="products-grid">
     <?php foreach ($products as $p):
-      $imgSrc = $p['image'] ? BASE_URL . '/uploads/products/' . e($p['image']) : null;
-      $isNew  = strtotime($p['created_at']) > strtotime('-30 days');
+      $imgSrc   = $p['image'] ? BASE_URL . '/uploads/products/' . e($p['image']) : null;
+      $isNew    = strtotime($p['created_at']) > strtotime('-30 days');
+      $features = getProductFeatures($pdo, $p['id']);
+
+      // Data payload read by shop.js to power the hover hotspots and
+      // the Quick View modal — no extra request needed on click.
+      $cardData = json_encode([
+          'id'       => $p['id'],
+          'name'     => $p['name'],
+          'category' => $p['category_name'] ?? 'General',
+          'price'    => (float)$p['price'],
+          'desc'     => $p['description'] ?? '',
+          'img'      => $imgSrc,
+          'stock'    => (int)$p['quantity'],
+          'features' => array_map(fn($f) => [
+              'label'       => $f['label'],
+              'description' => $f['description'],
+              'pos_x'       => (float)$f['pos_x'],
+              'pos_y'       => (float)$f['pos_y'],
+          ], $features),
+      ], JSON_UNESCAPED_UNICODE);
     ?>
-    <div class="product-card">
+    <div class="product-card" data-product='<?= htmlspecialchars($cardData, ENT_QUOTES, 'UTF-8') ?>'>
       <div class="product-img">
         <?php if ($imgSrc): ?>
           <img src="<?= $imgSrc ?>" alt="<?= e($p['name']) ?>" loading="lazy"/>
@@ -103,6 +122,28 @@ $shopName = 'CGShop';
         <?php endif; ?>
         <?php if ($isNew): ?><span class="product-badge badge-new">New</span><?php endif; ?>
         <?php if ($p['status']==='low_stock'): ?><span class="product-badge badge-low">Low stock</span><?php endif; ?>
+
+        <?php if ($features): ?>
+        <!-- Hover preview: numbered hotspots pop onto the thumbnail -->
+        <div class="hotspot-layer">
+          <?php foreach ($features as $i => $f): ?>
+          <div class="hotspot-dot" data-idx="<?= $i ?>" style="left:<?= $f['pos_x'] ?>%;top:<?= $f['pos_y'] ?>%">
+            <?= $i + 1 ?>
+            <div class="hotspot-tip">
+              <strong><?= e($f['label']) ?></strong><?= e($f['description'] ?? '') ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <span class="hotspot-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <?= count($features) ?> feature<?= count($features)!=1?'s':'' ?>
+        </span>
+        <?php endif; ?>
+
+        <span class="quickview-expand" title="Quick view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+        </span>
       </div>
       <div class="product-body">
         <div class="product-cat"><?= e($p['category_name'] ?? 'General') ?></div>
@@ -132,6 +173,7 @@ $shopName = 'CGShop';
 </footer>
 
 <?php include 'cart-panel.php'; ?>
+<?php include 'quickview-modal.php'; ?>
 <div id="shop-toast"></div>
 <script src="<?= BASE_URL ?>/assets/js/shop.js"></script>
 </body>

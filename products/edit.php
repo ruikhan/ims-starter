@@ -52,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'description'         => $description,
     ]);
 }
+
+// Feature hotspots for the "click the image to add a callout" panel below.
+$features = getProductFeatures($pdo, $id);
+
 require_once '../partials/header.php';
 ?>
 <div class="page-header">
@@ -195,6 +199,41 @@ require_once '../partials/header.php';
       </div>
     </div>
 
+    <!-- ── FEATURE HOTSPOTS ── -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Feature hotspots</span></div>
+      <div class="card-body" style="padding:20px">
+        <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+          Click anywhere on the image to drop a numbered callout — shoppers
+          hover it on the storefront (or open Quick View) to see that feature.
+        </p>
+
+        <?php if ($imgUrl): ?>
+        <div id="hotspot-editor" style="position:relative;border-radius:8px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);cursor:crosshair;user-select:none">
+          <img src="<?= $imgUrl ?>" style="width:100%;display:block;pointer-events:none"/>
+          <div id="hotspot-editor-pins" style="position:absolute;inset:0"></div>
+
+          <div id="hotspot-popover" style="display:none;position:absolute;z-index:50;width:210px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.5)">
+            <input type="text" id="hotspot-label-input" class="form-control" placeholder="Feature name" style="margin-bottom:8px;font-size:12px;padding:7px 9px"/>
+            <input type="text" id="hotspot-desc-input" class="form-control" placeholder="Short description (optional)" style="margin-bottom:10px;font-size:12px;padding:7px 9px"/>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="confirmHotspot()">Add</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="cancelHotspot()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <?php else: ?>
+        <div style="font-size:12px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px">
+          Upload a product image above first — hotspots are positioned on it.
+        </div>
+        <?php endif; ?>
+
+        <div id="hotspot-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
+
+        <input type="hidden" id="hotspot-csrf" value="<?= e(csrf_token()) ?>"/>
+      </div>
+    </div>
+
     <!-- Shop preview hint -->
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-top:12px">
       <div style="font-size:11px;font-family:var(--font-mono);color:var(--text3);margin-bottom:6px">SHOP PREVIEW</div>
@@ -277,6 +316,9 @@ async function handleImageUpload(input) {
           </button>`;
         uploadZone.parentElement.appendChild(form);
       }
+      // A newly-uploaded image means the hotspot editor should reflect it too.
+      const editorImg = document.querySelector('#hotspot-editor img');
+      if (editorImg) editorImg.src = data.image_url + '?t=' + Date.now();
     } else {
       status.textContent = '✗ ' + (data.error || 'Upload failed');
       status.style.color = 'var(--red)';
@@ -289,6 +331,130 @@ async function handleImageUpload(input) {
   uploadZone.style.pointerEvents = '';
   uploadZone.style.opacity = '';
 }
+</script>
+
+<script>
+// ── FEATURE HOTSPOT EDITOR ───────────────────────────────────
+let hotspots   = <?= json_encode(array_map(fn($f) => [
+    'id'          => (int)$f['id'],
+    'label'       => $f['label'],
+    'description' => $f['description'],
+    'pos_x'       => (float)$f['pos_x'],
+    'pos_y'       => (float)$f['pos_y'],
+], $features)) ?>;
+let pendingPos = null;
+
+function renderHotspotPins() {
+  const wrap = document.getElementById('hotspot-editor-pins');
+  if (!wrap) return;
+  wrap.innerHTML = hotspots.map((h, i) => `
+    <div style="position:absolute;left:${h.pos_x}%;top:${h.pos_y}%;transform:translate(-50%,-50%);
+                width:22px;height:22px;border-radius:50%;background:var(--accent);color:#0f1117;
+                font-family:var(--font-mono);font-size:11px;font-weight:700;
+                display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(34,211,160,.25)">
+      ${i + 1}
+    </div>`).join('');
+}
+
+function renderHotspotList() {
+  const list = document.getElementById('hotspot-list');
+  if (!list) return;
+  if (!hotspots.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text3)">No hotspots yet — click the image above to add one.</div>';
+    return;
+  }
+  list.innerHTML = hotspots.map((h, i) => `
+    <div style="display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <div style="width:20px;height:20px;border-radius:50%;background:var(--accent);color:#0f1117;font-family:var(--font-mono);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i + 1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${escapeHtml(h.label)}</div>
+        ${h.description ? `<div style="font-size:12px;color:var(--text2);margin-top:2px">${escapeHtml(h.description)}</div>` : ''}
+      </div>
+      <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="deleteHotspot(${h.id})" title="Delete">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+const hotspotEditor = document.getElementById('hotspot-editor');
+if (hotspotEditor) {
+  hotspotEditor.addEventListener('click', e => {
+    if (e.target.closest('#hotspot-popover')) return;
+    const rect = hotspotEditor.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width  * 100).toFixed(2);
+    const y = ((e.clientY - rect.top)  / rect.height * 100).toFixed(2);
+    pendingPos = { x, y };
+
+    const popover = document.getElementById('hotspot-popover');
+    const maxLeft = rect.width - 220;
+    popover.style.left = Math.min(e.clientX - rect.left, maxLeft) + 'px';
+    popover.style.top  = Math.min(e.clientY - rect.top, rect.height - 140) + 'px';
+    popover.style.display = 'block';
+    document.getElementById('hotspot-label-input').value = '';
+    document.getElementById('hotspot-desc-input').value  = '';
+    document.getElementById('hotspot-label-input').focus();
+  });
+}
+
+function cancelHotspot() {
+  document.getElementById('hotspot-popover').style.display = 'none';
+  pendingPos = null;
+}
+
+async function confirmHotspot() {
+  if (!pendingPos) return;
+  const label = document.getElementById('hotspot-label-input').value.trim();
+  if (!label) { document.getElementById('hotspot-label-input').focus(); return; }
+  const description = document.getElementById('hotspot-desc-input').value.trim();
+
+  const fd = new FormData();
+  fd.append('product_id', '<?= $product['id'] ?>');
+  fd.append('pos_x', pendingPos.x);
+  fd.append('pos_y', pendingPos.y);
+  fd.append('label', label);
+  fd.append('description', description);
+  fd.append('csrf_token', document.getElementById('hotspot-csrf').value);
+
+  try {
+    const res  = await fetch('<?= BASE_URL ?>/admin/save-feature.php', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) {
+      hotspots.push({ id: data.id, label, description, pos_x: parseFloat(pendingPos.x), pos_y: parseFloat(pendingPos.y) });
+      renderHotspotPins();
+      renderHotspotList();
+      cancelHotspot();
+    } else {
+      alert(data.error || 'Could not save that hotspot.');
+    }
+  } catch {
+    alert('Network error — could not save that hotspot.');
+  }
+}
+
+async function deleteHotspot(id) {
+  if (!confirm('Remove this hotspot?')) return;
+  const fd = new FormData();
+  fd.append('id', id);
+  fd.append('csrf_token', document.getElementById('hotspot-csrf').value);
+  try {
+    const res  = await fetch('<?= BASE_URL ?>/admin/delete-feature.php', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) {
+      hotspots = hotspots.filter(h => h.id !== id);
+      renderHotspotPins();
+      renderHotspotList();
+    }
+  } catch { /* leave the list as-is on network failure */ }
+}
+
+renderHotspotPins();
+renderHotspotList();
 </script>
 
 <?php require_once '../partials/footer.php'; ?>
