@@ -31,6 +31,7 @@ $shopName = 'CGShop';
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <?php include 'pwa-head.php'; ?>
   <title><?= $shopName ?> — Premium Inventory Store</title>
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/shop.css"/>
 </head>
